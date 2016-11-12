@@ -58,11 +58,11 @@ CorsairLedId moveBird(CorsairLedId loc)
 	{
 		if (loc == CLK_F12)
 		{
-			loc = static_cast<CorsairLedId>(CLK_F11);
+		//	loc = static_cast<CorsairLedId>(CLK_F11);
 		}
 		else
 		{
-			loc = static_cast<CorsairLedId>(loc - 1);
+	//		loc = static_cast<CorsairLedId>(loc - 1);
 		}
 	}
 	return loc;
@@ -100,6 +100,28 @@ void generateLine()
 	}
 }
 
+void gameOver()
+{
+	std::cout << "Game Over";
+	getchar();
+	exit(0);
+}
+
+
+void checkCollision(CorsairLedId bird_loc)
+{
+	if (line.col == 4)
+	{
+		for (int i = 0; i < 12; i++)
+		{
+			if (line.lit[i] == bird_loc)
+			{
+				gameOver();
+			}
+		}
+	}
+ }
+
 int main()
 {
 	CorsairPerformProtocolHandshake();
@@ -111,7 +133,7 @@ int main()
 	}
 
 	auto bird_loc = CLK_F6;//Start "bird" at F6 key
-	auto bird = CorsairLedColor{ bird_loc,255,0,0 };//make a red bird
+	auto bird = CorsairLedColor{ bird_loc,255,255,0 };//make a red bird
 	
 	CorsairLedColor block;
 	generateLine();
@@ -128,7 +150,7 @@ int main()
 		{
 			if (line.col < 5 && cols[line.col][i] != static_cast<CorsairLedId>(-1))
 			{
-				block = CorsairLedColor{ cols[line.col][line.lit[i]], 0, 0, 255 };
+				block = CorsairLedColor{ cols[line.col][line.lit[i]], 209, 19, 19 };
 				CorsairSetLedsColors(1, &block);
 			}
 		}
@@ -149,7 +171,8 @@ int main()
 		}
 		line.col++;
 		bird_loc = moveBird(bird_loc);//move bird
-		bird = CorsairLedColor{ bird_loc,255,0,0 };
+		bird = CorsairLedColor{ bird_loc,255,255,0 };
+		checkCollision(bird_loc);
 	}
 
 	std::cout << "bird died :/";
