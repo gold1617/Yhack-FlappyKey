@@ -58,11 +58,11 @@ CorsairLedId moveBird(CorsairLedId loc)
 	{
 		if (loc == CLK_F12)
 		{
-		//	loc = static_cast<CorsairLedId>(CLK_F11);
+			loc = static_cast<CorsairLedId>(CLK_F11);
 		}
 		else
 		{
-	//		loc = static_cast<CorsairLedId>(loc - 1);
+			loc = static_cast<CorsairLedId>(loc - 1);
 		}
 	}
 	return loc;
@@ -110,6 +110,10 @@ void gameOver()
 
 void checkCollision(CorsairLedId bird_loc)
 {
+	if (bird_loc == CLK_Escape)
+	{
+		gameOver();
+	}
 	if (line.col == 4)
 	{
 		for (int i = 0; i < 12; i++)
@@ -124,6 +128,8 @@ void checkCollision(CorsairLedId bird_loc)
 
 int main()
 {
+	int frames = 1;
+
 	CorsairPerformProtocolHandshake();
 
 	if (const auto error = CorsairGetLastError()) {
@@ -140,12 +146,15 @@ int main()
 
 	CorsairRequestControl(CAM_ExclusiveLightingControl);//request  that this application has exclusive control of LEDs
 
-	while (bird_loc != CLK_Escape)
+	while (true)
 	{
 		drawGrass();
 		CorsairSetLedsColors(1, &bird);//draw bird
 		
-
+		if (line.col > 4)
+		{
+			generateLine();
+		}
 		for (int i = 0; i < 12; i++)//Draw barrier
 		{
 			if (line.col < 5 && cols[line.col][i] != static_cast<CorsairLedId>(-1))
@@ -156,27 +165,32 @@ int main()
 		}
 
 
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));//sleep to seperate frames
 
 		bird = CorsairLedColor{ bird_loc,0,0,0 };//Turn off old bird location before moving
 		CorsairSetLedsColors(1, &bird);
 
-		for (int i = 0; i < 12; i++)//Turn off barrier
+		if (frames == 3)
 		{
-			if (line.col < 5 && cols[line.col][i] != static_cast<CorsairLedId>(-1))
+			for (int i = 0; i < 12; i++)//Turn off barrier
 			{
-				block = CorsairLedColor{ cols[line.col][line.lit[i]], 0, 0, 0 };
-				CorsairSetLedsColors(1, &block);
+				if (line.col < 5 && cols[line.col][i] != static_cast<CorsairLedId>(-1))
+				{
+					block = CorsairLedColor{ cols[line.col][line.lit[i]], 0, 0, 0 };
+					CorsairSetLedsColors(1, &block);
+				}
 			}
+			line.col++;
+			frames = 1;
 		}
-		line.col++;
+		else
+		{
+			frames++;
+		}
 		bird_loc = moveBird(bird_loc);//move bird
 		bird = CorsairLedColor{ bird_loc,255,255,0 };
 		checkCollision(bird_loc);
 	}
-
-	std::cout << "bird died :/";
-	getchar();
 
 	return 0;
 }
