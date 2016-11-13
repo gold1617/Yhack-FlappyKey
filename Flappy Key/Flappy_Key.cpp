@@ -17,6 +17,10 @@ const CorsairLedId *cols[5] = { bottom,second,third,fourth,fifth };
 
 const CorsairLedId keypad[10] = { CLK_Keypad0, CLK_Keypad1, CLK_Keypad2, CLK_Keypad3, CLK_Keypad4, CLK_Keypad5, CLK_Keypad6, CLK_Keypad7, CLK_Keypad8, CLK_Keypad9 };
 
+const CorsairLedId three[13] = { CLK_9, CLK_I, CLK_J, CLK_N, CLK_B, CLK_B, CLK_G, CLK_T, CLK_V, CLK_C,CLK_D,CLK_E,CLK_3 };
+const CorsairLedId two[13] = { CLK_9,CLK_8,CLK_I,CLK_J,CLK_H,CLK_G,CLK_R,CLK_4,CLK_E,CLK_D,CLK_X,CLK_F,CLK_3 };
+const CorsairLedId one[13] = { CLK_9, CLK_O, CLK_L, CLK_K, CLK_J, CLK_H, CLK_G, CLK_F, CLK_D, CLK_E, CLK_X, CLK_3, CLK_LeftAlt};
+
 int score;
 
 struct Line
@@ -45,9 +49,17 @@ const char* toString(CorsairError error)
 	}
 }
 
+bool isAnyKeyDown() {
+	bool res = false;
+	for (auto i = 1; i < 255; i++) {
+		res = res || GetAsyncKeyState(i);
+	}
+	return res;
+}
+
 CorsairLedId moveBird(CorsairLedId loc)
 {
-	if (GetAsyncKeyState(VK_LCONTROL))//If user presses ESC bird moves up
+	if (isAnyKeyDown())//If user presses ESC bird moves up
 	{
 		if (loc < CLK_F11)
 		{
@@ -151,6 +163,62 @@ void updateScore()
 	CorsairSetLedsColors(1, &k);
 }
 
+void countdown()
+{
+	srand(time(NULL));
+	int r = rand() % 255;
+	srand(time(NULL));
+	int g = rand() % 255;
+	srand(time(NULL));
+	int b = rand() % 255;
+	CorsairLedColor k;
+	for (int i = 0; i < 13.; i++)
+	{
+		k = CorsairLedColor{ three[i],r,g,b };
+		CorsairSetLedsColors(1, &k);
+	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(750));
+	for (int i = 0; i < 13; i++)
+	{
+		k = CorsairLedColor{ three[i],0,0,0 };
+		CorsairSetLedsColors(1, &k);
+	}
+	srand(time(NULL));
+	r = rand() % 255;
+	srand(time(NULL));
+	g = rand() % 255;
+	srand(time(NULL));
+	b = rand() % 255;
+	for (int i = 0; i < 13; i++)
+	{
+		k = CorsairLedColor{ two[i],r,g,b };
+		CorsairSetLedsColors(1, &k);
+	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(750));
+	for (int i = 0; i < 13; i++)
+	{
+		k = CorsairLedColor{ two[i],0,0,0 };
+		CorsairSetLedsColors(1, &k);
+	}
+	srand(time(NULL));
+	r = rand() % 255;
+	srand(time(NULL));
+	g = rand() % 255;
+	srand(time(NULL));
+	b = rand() % 255;
+	for (int i = 0; i < 12; i++)
+	{
+		k = CorsairLedColor{ one[i],r,g,b };
+		CorsairSetLedsColors(1, &k);
+	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(750)); 
+	for (int i = 0; i < 13; i++)
+	{
+		k = CorsairLedColor{ one[i],0,0,0 };
+		CorsairSetLedsColors(1, &k);
+	}
+}
+
 int main()
 {
 	int frames = 1;
@@ -172,6 +240,9 @@ int main()
 	score = 0;
 
 	CorsairRequestControl(CAM_ExclusiveLightingControl);//request  that this application has exclusive control of LEDs
+
+	countdown();
+
 	updateScore();
 	while (true)
 	{
@@ -194,7 +265,7 @@ int main()
 		}
 
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));//sleep to seperate frames
+		std::this_thread::sleep_for(std::chrono::milliseconds(150));//sleep to seperate frames
 
 		bird = CorsairLedColor{ bird_loc,0,0,0 };//Turn off old bird location before moving
 		CorsairSetLedsColors(1, &bird);
