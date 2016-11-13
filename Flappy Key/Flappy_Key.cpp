@@ -9,7 +9,7 @@
 #include <Windows.h>
 #include <vector>
 
-const CorsairLedId bottom[15] = { CLK_LeftShift,CLK_LeftShift,CLK_LeftShift,CLK_Z,CLK_X,CLK_C,CLK_V,CLK_B,CLK_N,CLK_M,CLK_CommaAndLessThan,CLK_PeriodAndBiggerThan,CLK_SlashAndQuestionMark,CLK_RightShift};
+const CorsairLedId bottom[15] = { CLK_LeftShift,CLK_LeftShift,CLK_LeftShift,CLK_Z,CLK_X,CLK_C,CLK_V,CLK_B,CLK_N,CLK_M,CLK_CommaAndLessThan,CLK_PeriodAndBiggerThan,CLK_SlashAndQuestionMark,CLK_RightShift,CLK_RightShift};
 const CorsairLedId second[15] = { CLK_CapsLock,CLK_CapsLock,CLK_A,CLK_S,CLK_D,CLK_F,CLK_G,CLK_H,CLK_J,CLK_K,CLK_L,CLK_SemicolonAndColon,CLK_ApostropheAndDoubleQuote,CLK_Enter,CLK_Enter };
 const CorsairLedId third[15] = { CLK_Tab,CLK_Tab,CLK_Q,CLK_W,CLK_E,CLK_R,CLK_T,CLK_Y,CLK_U,CLK_I,CLK_O,CLK_P,CLK_BracketLeft,CLK_BracketRight,CLK_Backslash };
 const CorsairLedId fourth[15] = { CLK_GraveAccentAndTilde,CLK_1,CLK_2,CLK_3,CLK_4,CLK_5,CLK_6,CLK_7,CLK_8,CLK_9,CLK_0,CLK_MinusAndUnderscore,CLK_EqualsAndPlus,CLK_Backspace,CLK_Backslash };
@@ -22,6 +22,13 @@ CorsairLedId keypad[10] = { CLK_Keypad0, CLK_Keypad1, CLK_Keypad2, CLK_Keypad3, 
 const CorsairLedId three[13] = { CLK_9, CLK_I, CLK_J, CLK_N, CLK_B, CLK_B, CLK_G, CLK_T, CLK_V, CLK_C,CLK_D,CLK_E,CLK_3 };
 const CorsairLedId two[13] = { CLK_9,CLK_8,CLK_I,CLK_J,CLK_H,CLK_G,CLK_R,CLK_4,CLK_E,CLK_D,CLK_X,CLK_F,CLK_3 };
 const CorsairLedId one[13] = { CLK_9, CLK_O, CLK_L, CLK_K, CLK_J, CLK_H, CLK_G, CLK_F, CLK_D, CLK_E, CLK_X, CLK_3, CLK_LeftAlt};
+
+const CorsairLedId all[74] = { CLK_LeftCtrl,CLK_LeftGui,CLK_LeftAlt,CLK_Space,CLK_RightAlt,CLK_RightGui,CLK_Application,CLK_RightCtrl,
+CLK_LeftShift,CLK_Z,CLK_X,CLK_C,CLK_V,CLK_B,CLK_N,CLK_M,CLK_CommaAndLessThan,CLK_PeriodAndBiggerThan,CLK_SlashAndQuestionMark,CLK_RightShift,
+CLK_CapsLock, CLK_A, CLK_S, CLK_D, CLK_F, CLK_G, CLK_H, CLK_J, CLK_K, CLK_L, CLK_SemicolonAndColon, CLK_ApostropheAndDoubleQuote, CLK_Enter, 
+CLK_Tab,CLK_Q,CLK_W,CLK_E,CLK_R,CLK_T,CLK_Y,CLK_U,CLK_I,CLK_O,CLK_P,CLK_BracketLeft,CLK_BracketRight,CLK_Backslash, CLK_GraveAccentAndTilde,
+CLK_1,CLK_2,CLK_3,CLK_4,CLK_5,CLK_6,CLK_7,CLK_8,CLK_9,CLK_0,CLK_MinusAndUnderscore,CLK_EqualsAndPlus,CLK_Backspace, 
+CLK_F1,CLK_F2,CLK_F3,CLK_F4,CLK_F5,CLK_F6,CLK_F7,CLK_F8, CLK_F9,CLK_F10,CLK_F11,CLK_F12,CLK_Escape };
 
 int score;
 std::chrono::steady_clock::time_point startPoint;
@@ -121,6 +128,12 @@ void generateLine()
 
 void gameOver()
 {
+	CorsairLedColor cur;
+	for (int i = 0; i < 74; i++)
+	{
+		cur = CorsairLedColor{ all[i],255,0,0 };
+		CorsairSetLedsColors(1, &cur);
+	}
 	std::cout << "Game Over\nScore: " << score << "\n";
 	getchar();
 	exit(0);
@@ -281,7 +294,7 @@ int main()
 		}
 		for (int i = 0; i < 12; i++)//Draw barrier
 		{
-			if (line.col < 5 && cols[line.col][i] != static_cast<CorsairLedId>(-1))
+			if (line.col < 5 && cols[line.col][line.lit[i]] != static_cast<CorsairLedId>(-1))
 			{
 				block = CorsairLedColor{ cols[line.col][line.lit[i]], 209, 19, 19 };
 				CorsairSetLedsColors(1, &block);
@@ -289,7 +302,7 @@ int main()
 		}
 
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(150));//sleep to seperate frames
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));//sleep to seperate frames
 
 		bird = CorsairLedColor{ bird_loc,0,0,0 };//Turn off old bird location before moving
 		CorsairSetLedsColors(1, &bird);
