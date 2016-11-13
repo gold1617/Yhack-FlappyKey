@@ -84,17 +84,18 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\16gol\Documents\Corsair\CUESDK_2.4.67\CUESDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\16gol\Documents\Corsair\CUESDK_2.4.67\CUESDK\include;D:\16gol\Documents\Corsair\Corsair-SDK-Lighting-Effects-v2.0.57\LFX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>D:\16gol\Documents\Corsair\CUESDK_2.4.67\CUESDK\lib\x64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>CUESDK.x64_2013.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\16gol\Documents\Corsair\Corsair-SDK-Lighting-Effects-v2.0.57\LFX\lib\x64;D:\16gol\Documents\Corsair\CUESDK_2.4.67\CUESDK\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>CUELFX.x64_2013.lib;CUESDK.x64_2013.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy  /Y /I  "D:\16gol\Documents\Corsair\CUESDK_2.4.67\CUESDK\bin\x64\*" "$(OutDir)"</Command>
+      <Command>xcopy  /Y /I  "D:\16gol\Documents\Corsair\CUESDK_2.4.67\CUESDK\bin\x64\*" "$(OutDir)"
+xcopy  /Y /I  "D:\16gol\Documents\Corsair\Corsair-SDK-Lighting-Effects-v2.0.57\LFX\bin\x64\CorsairLFX.x64_2013.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

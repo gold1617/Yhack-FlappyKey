@@ -1,5 +1,7 @@
 
 #include "CUESDK.h"
+#include "CUELFX/CUELFX.h"
+#include "Shared/LFX.h"
 
 #include <iostream>
 #include <thread>
@@ -15,13 +17,14 @@ const CorsairLedId fifth[15] = { static_cast<CorsairLedId>(-1),static_cast<Corsa
 
 const CorsairLedId *cols[5] = { bottom,second,third,fourth,fifth };
 
-const CorsairLedId keypad[10] = { CLK_Keypad0, CLK_Keypad1, CLK_Keypad2, CLK_Keypad3, CLK_Keypad4, CLK_Keypad5, CLK_Keypad6, CLK_Keypad7, CLK_Keypad8, CLK_Keypad9 };
+CorsairLedId keypad[10] = { CLK_Keypad0, CLK_Keypad1, CLK_Keypad2, CLK_Keypad3, CLK_Keypad4, CLK_Keypad5, CLK_Keypad6, CLK_Keypad7, CLK_Keypad8, CLK_Keypad9 };
 
 const CorsairLedId three[13] = { CLK_9, CLK_I, CLK_J, CLK_N, CLK_B, CLK_B, CLK_G, CLK_T, CLK_V, CLK_C,CLK_D,CLK_E,CLK_3 };
 const CorsairLedId two[13] = { CLK_9,CLK_8,CLK_I,CLK_J,CLK_H,CLK_G,CLK_R,CLK_4,CLK_E,CLK_D,CLK_X,CLK_F,CLK_3 };
 const CorsairLedId one[13] = { CLK_9, CLK_O, CLK_L, CLK_K, CLK_J, CLK_H, CLK_G, CLK_F, CLK_D, CLK_E, CLK_X, CLK_3, CLK_LeftAlt};
 
 int score;
+std::chrono::steady_clock::time_point startPoint;
 
 struct Line
 {
@@ -154,13 +157,34 @@ void updateScore()
 	tens = score / 10;
 	ones = score % 10;
 
-	if (tens > 0)
+	if (ones == tens && tens > 0)
 	{
-		k = CorsairLedColor{ keypad[tens],193,30,188 };
+		auto alternate = CUELFXCreateAlternatingRapidBlinkEffect ( 1, &(keypad[ones]), CorsairColor { 193,30,188 }, CorsairColor{ 218,145,19 } );
+		auto offset = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startPoint).count();
+		auto frame = CUELFXGetFrame(alternate->effectId, static_cast<int>(offset));
+
+		if (frame && frame->ledsColors) 
+		{
+			auto res = CorsairSetLedsColors(frame->size, frame->ledsColors);
+			CUELFXFreeFrame(frame);
+
+			if (!res) 
+			{
+				std::cerr << "Failed to set led colors: " << toString(CorsairGetLastError()) << std::endl;
+				return;
+			}
+		}
+	}
+	else
+	{
+		if (tens > 0)
+		{
+			k = CorsairLedColor{ keypad[tens],193,30,188 };
+			CorsairSetLedsColors(1, &k);
+		}
+		k = CorsairLedColor{ keypad[ones],218,145,19 };
 		CorsairSetLedsColors(1, &k);
 	}
-	k = CorsairLedColor{ keypad[ones],218,145,19 };
-	CorsairSetLedsColors(1, &k);
 }
 
 void countdown()
@@ -222,7 +246,8 @@ void countdown()
 int main()
 {
 	int frames = 1;
-	
+	startPoint = std::chrono::steady_clock::now();
+
 	CorsairPerformProtocolHandshake();
 
 	if (const auto error = CorsairGetLastError()) {
@@ -253,7 +278,6 @@ int main()
 		{
 			generateLine();
 			score++;
-			updateScore();
 		}
 		for (int i = 0; i < 12; i++)//Draw barrier
 		{
@@ -292,7 +316,7 @@ int main()
 			checkCollision(bird_loc);
 			frames++;
 		}
-		
+		updateScore();		
 	}
 
 	return 0;
