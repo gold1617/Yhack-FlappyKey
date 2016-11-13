@@ -150,7 +150,7 @@ void checkCollision(CorsairLedId bird_loc)
 	{
 		for (int i = 0; i < 12; i++)
 		{
-			if (line.lit[i] == bird_loc)
+			if (fifth[line.lit[i]] == bird_loc)
 			{
 				gameOver();
 			}
@@ -194,6 +194,7 @@ void updateScore()
 		{
 			k = CorsairLedColor{ keypad[tens],193,30,188 };
 			CorsairSetLedsColors(1, &k);
+			 
 		}
 		k = CorsairLedColor{ keypad[ones],218,145,19 };
 		CorsairSetLedsColors(1, &k);
