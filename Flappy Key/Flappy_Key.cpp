@@ -9,11 +9,13 @@
 
 const CorsairLedId bottom[15] = { CLK_LeftShift,CLK_LeftShift,CLK_LeftShift,CLK_Z,CLK_X,CLK_C,CLK_V,CLK_B,CLK_N,CLK_M,CLK_CommaAndLessThan,CLK_PeriodAndBiggerThan,CLK_SlashAndQuestionMark,CLK_RightShift};
 const CorsairLedId second[15] = { CLK_CapsLock,CLK_CapsLock,CLK_A,CLK_S,CLK_D,CLK_F,CLK_G,CLK_H,CLK_J,CLK_K,CLK_L,CLK_SemicolonAndColon,CLK_ApostropheAndDoubleQuote,CLK_Enter,CLK_Enter };
-const CorsairLedId third[15] = { CLK_Tab,CLK_Tab,CLK_Q,CLK_W,CLK_E,CLK_R,CLK_T,CLK_Y,CLK_U,CLK_I,CLK_O,CLK_P,CLK_BracketLeft,CLK_BracketLeft,CLK_Backslash };
+const CorsairLedId third[15] = { CLK_Tab,CLK_Tab,CLK_Q,CLK_W,CLK_E,CLK_R,CLK_T,CLK_Y,CLK_U,CLK_I,CLK_O,CLK_P,CLK_BracketLeft,CLK_BracketRight,CLK_Backslash };
 const CorsairLedId fourth[15] = { CLK_GraveAccentAndTilde,CLK_1,CLK_2,CLK_3,CLK_4,CLK_5,CLK_6,CLK_7,CLK_8,CLK_9,CLK_0,CLK_MinusAndUnderscore,CLK_EqualsAndPlus,CLK_Backspace,CLK_Backslash };
 const CorsairLedId fifth[15] = { static_cast<CorsairLedId>(-1),static_cast<CorsairLedId>(-1),CLK_F1,CLK_F2,CLK_F3,CLK_F4,CLK_F5,CLK_F6,CLK_F7,CLK_F8,static_cast<CorsairLedId>(-1),CLK_F9,CLK_F10,CLK_F11,CLK_F12 };
 
 const CorsairLedId *cols[5] = { bottom,second,third,fourth,fifth };
+
+int score;
 
 struct Line
 {
@@ -102,7 +104,7 @@ void generateLine()
 
 void gameOver()
 {
-	std::cout << "Game Over";
+	std::cout << "Game Over\nScore: " << score << "\n";
 	getchar();
 	exit(0);
 }
@@ -129,7 +131,7 @@ void checkCollision(CorsairLedId bird_loc)
 int main()
 {
 	int frames = 1;
-
+	
 	CorsairPerformProtocolHandshake();
 
 	if (const auto error = CorsairGetLastError()) {
@@ -144,6 +146,8 @@ int main()
 	CorsairLedColor block;
 	generateLine();
 
+	score = 0;
+
 	CorsairRequestControl(CAM_ExclusiveLightingControl);//request  that this application has exclusive control of LEDs
 
 	while (true)
@@ -154,6 +158,7 @@ int main()
 		if (line.col > 4)
 		{
 			generateLine();
+			score++;
 		}
 		for (int i = 0; i < 12; i++)//Draw barrier
 		{
@@ -170,6 +175,9 @@ int main()
 		bird = CorsairLedColor{ bird_loc,0,0,0 };//Turn off old bird location before moving
 		CorsairSetLedsColors(1, &bird);
 
+		bird_loc = moveBird(bird_loc);//move bird
+		bird = CorsairLedColor{ bird_loc,255,255,0 };
+
 		if (frames == 3)
 		{
 			for (int i = 0; i < 12; i++)//Turn off barrier
@@ -182,14 +190,14 @@ int main()
 			}
 			line.col++;
 			frames = 1;
+			checkCollision(bird_loc);
 		}
 		else
 		{
+			checkCollision(bird_loc);
 			frames++;
 		}
-		bird_loc = moveBird(bird_loc);//move bird
-		bird = CorsairLedColor{ bird_loc,255,255,0 };
-		checkCollision(bird_loc);
+		
 	}
 
 	return 0;
