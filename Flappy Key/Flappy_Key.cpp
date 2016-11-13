@@ -15,6 +15,8 @@ const CorsairLedId fifth[15] = { static_cast<CorsairLedId>(-1),static_cast<Corsa
 
 const CorsairLedId *cols[5] = { bottom,second,third,fourth,fifth };
 
+const CorsairLedId keypad[10] = { CLK_Keypad0, CLK_Keypad1, CLK_Keypad2, CLK_Keypad3, CLK_Keypad4, CLK_Keypad5, CLK_Keypad6, CLK_Keypad7, CLK_Keypad8, CLK_Keypad9 };
+
 int score;
 
 struct Line
@@ -128,6 +130,27 @@ void checkCollision(CorsairLedId bird_loc)
 	}
  }
 
+void updateScore()
+{
+	CorsairLedColor k;
+	for (int i = 0; i < 10; i++)
+	{
+		k = CorsairLedColor{keypad[i], 0, 0, 0};
+		CorsairSetLedsColors(1,&k);
+	}
+	int tens, ones;
+	tens = score / 10;
+	ones = score % 10;
+
+	if (tens > 0)
+	{
+		k = CorsairLedColor{ keypad[tens],193,30,188 };
+		CorsairSetLedsColors(1, &k);
+	}
+	k = CorsairLedColor{ keypad[ones],218,145,19 };
+	CorsairSetLedsColors(1, &k);
+}
+
 int main()
 {
 	int frames = 1;
@@ -149,7 +172,7 @@ int main()
 	score = 0;
 
 	CorsairRequestControl(CAM_ExclusiveLightingControl);//request  that this application has exclusive control of LEDs
-
+	updateScore();
 	while (true)
 	{
 		drawGrass();
@@ -159,6 +182,7 @@ int main()
 		{
 			generateLine();
 			score++;
+			updateScore();
 		}
 		for (int i = 0; i < 12; i++)//Draw barrier
 		{
